@@ -1,0 +1,3 @@
+#! /bin/sh
+echo 'blacklist r8188eu' > /etc/modprobe.d/blacklist-r8188eu.conf
+
