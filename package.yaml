@@ -1,0 +1,30 @@
+# nfpm example config file
+#
+# check https://nfpm.goreleaser.com/configuration for detailed usage
+#
+name: "avnav-driver-plugin"
+arch: "all"
+platform: "linux"
+version: "v1.0.0"
+version_schema: "none"
+section: "default"
+priority: "extra"
+depends:
+- avnav-raspi
+- dkms
+maintainer: "Andreas Vogel <andreas@wellenvogel.de>"
+description: |
+  rpi DKMS drivers
+homepage: "https://example.com"
+license: "MIT"
+contents:
+- src: src/
+  dst: /usr/src/
+  type: tree
+- src: ./build/allmodules
+  dst: /usr/lib/avnav/driverplugin/allmodules  
+- src: startup-check.sh
+  dst: /usr/lib/avnav/driverplugin/startup-check.sh 
+deb:
+  fields:
+
