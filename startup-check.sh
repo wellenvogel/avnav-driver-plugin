@@ -1,27 +1,63 @@
 #! /bin/bash
 usage(){
     echo "usage: $0 initial|enable module|disable module"
-    exit 1
+    exit -1
 }
 pdir="`dirname $0`"
 . "$pdir/helper.sh"
+
+modPar(){
+    par="`modName \"$1\"`"
+    mod="`modModule \"$1\"`"
+    ver="`modVersion \"$1\"`"
+    dir="/usr/src/$mod-$ver"
+    dkmscfg="$dir/dkms.conf"
+}
+
+setAutoInstall(){
+    local v=""
+    if [ "$2" = YES ] ; then
+        v=$2
+    fi
+    sed -i -e "s/AUTOINSTALL=.*/AUTOINSTALL=$v/" "$1" || err "unable to change $1" 
+}
+
+getStatus(){
+    dkms status -m "$1" -v "$2" | sed "s/.*$2: *//"
+}
+
+isBuild(){
+    local s
+    for s in built installed
+    do
+        if [ "$1" = "$s" ] ; then
+            return 0
+        fi
+    done
+    return 1
+}
+
 if [ "$1" = "initial" ] ; then
     echo "preparing all modules"
     allModules "$pdir" ADD | while read modstr
     do
         echo "adding $modstr"
-        par="`modName \"$modstr\"`"
-        mod="`modModule \"$modstr\"`"
-        ver="`modVersion \"$modstr\"`"
+        modPar "$modstr"
         if [ "$par" = "" -o "$mod" = "" -o "$ver" = "" ] ; then
             break
         fi
-        dirname="/usr/src/$mod-$ver"
-        dkmscfg="$dirname/dkms.conf"
-        [ ! -d "$dirname" -o ! -f "$dkmscfg" ] && err "$dkmscfg not found"
-        sed -i -e 's/AUTOINSTALL=.*/AUTOINSTALL="NO"/' "$dkmscfg" || err "unable to change $dkmscfg"
-        dkms add -m $mod -v $ver || err "unable to add $par $mod $ver"
-        dkms build -m $mod -v $ver || err "unable to build $par $mod $ver"
+        [ ! -d "$dir" -o ! -f "$dkmscfg" ] && err "$dkmscfg not found"
+        setAutoInstall "$dkmscfg" NO
+        st="`getStatus $mod $ver`" 
+        if [ "$st" = "" ] ; then
+            dkms add -m $mod -v $ver || err "unable to add $par $mod $ver"
+        fi
+        if isBuild "$st" ; then
+            echo "$modstr already build"
+        else
+            echo "building $modstr"    
+            dkms build -m $mod -v $ver || err "unable to build $par $mod $ver"
+        fi    
     done
     echo "done..."
     exit 0
@@ -33,21 +69,50 @@ if [ "$1" = "enable" -o "$1" = "disable" ] ; then
     fi
     modstr="`findModule \"$pdir\" \"$2\"`"
     [ "$modstr" = "" ] && err "$2 not found in modules"
-    mod="`modModule \"$modstr\"`"
-    ver="`modVersion \"$modstr\"`"
-    dirname="/usr/src/$mod-$ver"
-    dkmscfg="$dirname/dkms.conf"
-    [ ! -d "$dirname" -o ! -f "$dkmscfg" ] && err "$dkmscfg not found"
+    modPar "$modstr"
+    [ ! -d "$dir" -o ! -f "$dkmscfg" ] && err "$dkmscfg not found"
+    rt=0
     if [ "$1" = enable ] ; then
-        echo "enabling module $modver"
-        dkms install -m $mod -v $ver || err "unable to run dkms install -m $mod -v $ver"
-        sed -i -e 's/AUTOINSTALL=.*/AUTOINSTALL="YES"/' "$dkmscfg" || err "unable to change $dkmscfg"
+        echo "enabling module $modstr"
+        st="`getStatus $mod $ver`"
+        if [ "$st" = "" ] ; then
+            echo "adding module $modstr"
+            dkms add -m $mod -v $ver || err "unable to run dkms add -m $mod -v $ver"
+        fi
+        if [ "$st" != "installed" ] ; then
+            dkms install -m $mod -v $ver || err "unable to run dkms install -m $mod -v $ver"
+            rt=1
+        fi
+        setAutoInstall "$dkmscfg" YES
     else
-        echo "disabling module $modver"
-        dkms uninstall -m $mod -v $ver || err "unable to run dkms uninstall -m $mod -v $ver"
-        sed -i -e 's/AUTOINSTALL=.*/AUTOINSTALL="NO"/' "$dkmscfg" || err "unable to change $dkmscfg"
+        echo "disabling module $modstr"
+        st="`getStatus $mod $ver`"
+        if [ "$st" = "installed" ] ; then
+            dkms uninstall -m $mod -v $ver || err "unable to run dkms uninstall -m $mod -v $ver"
+            rt=1
+        fi
+        setAutoInstall "$dkmscfg" NO
     fi
     echo "$1 $2 done..."
+    exit $rt
+fi
+
+if [ "$1" = "remove" ] ; then
+    if [ "$2" = "" ] ; then
+        echo "missing parameter module"
+        usage
+    fi
+    allModules "$pdir" | while read modstr
+    do
+        modPar "$modstr"
+        if [ "$par" = "$2" -o "$2" = all ] ; then
+            st="`getStatus $mod $ver`"
+            if [ "$st" != "" ] ; then
+                echo "removing $modstr"
+                dkms remove -m $mod -v $ver
+            fi
+        fi
+    done
     exit 0
 fi
 

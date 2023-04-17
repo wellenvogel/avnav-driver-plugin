@@ -1,7 +1,7 @@
 #! /bin/bash
 err(){
     echo "ERROR: $*" >&2
-    exit 1
+    exit -1
 }
 
 #$1: module ADD=NAME=mod/version
@@ -48,6 +48,7 @@ allModules(){
 findModule(){
     allModules "$1" | grep "ADD=$2="
 }
+
 #$1: module dir
 getLocalModule(){
     local mname="$1/module"
