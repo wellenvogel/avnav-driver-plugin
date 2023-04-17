@@ -1,11 +1,8 @@
-#! /bin/sh
+#! /bin/bash
 #package build using https://github.com/goreleaser/nfpm on docker
-err(){
-  echo "ERROR: $*"
-  exit 1
-}
 pdir=`dirname $0`
 pdir=`readlink -f "$pdir"`
+. "$pdir/helper.sh"
 #set -x
 for sub in build src
 do
@@ -22,9 +19,10 @@ do
   [ ! -f "$dn/module" ] && err "$dn/module missing"
   echo "collecting $dir"
   mv=`cat "$dn/module"`
-  echo "$dir=$mv" >> "$pdir/build/allmodules" 
+  echo "ADD=$dir=$mv" >> "$pdir/build/allmodules" 
   "$dn/prepare.sh" || err "unable to run $dn/prepare.sh"
 done
+cat "$pdir/oldmodules" >> "$pdir/build/allmodules"
 config=package.yaml
 version="$1"
 if [ "$version" = "" ] ; then

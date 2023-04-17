@@ -22,9 +22,11 @@ contents:
   dst: /usr/src/
   type: tree
 - src: ./build/allmodules
-  dst: /usr/lib/avnav/driverplugin/allmodules  
+  dst: /usr/lib/avnav/raspberry/driver/allmodules  
 - src: startup-check.sh
-  dst: /usr/lib/avnav/driverplugin/startup-check.sh 
+  dst: /usr/lib/avnav/raspberry/driver/startup-check.sh
+- src: helper.sh
+  dst: /usr/lib/avnav/raspberry/driver/helper.sh   
 deb:
   fields:
 
