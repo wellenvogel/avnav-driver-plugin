@@ -28,5 +28,6 @@ contents:
 - src: helper.sh
   dst: /usr/lib/avnav/raspberry/driver/helper.sh
 scripts:
-  preremove: preremove     
+  preremove: preremove
+  postinstall: postinstall     
 

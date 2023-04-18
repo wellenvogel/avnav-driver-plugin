@@ -1,2 +1,3 @@
 #! /bin/bash
+[ "$1" = upgrade ] && exit 0
 /usr/lib/avnav/raspberry/driver/setup.sh remove all || echo "WARNING: could not remove DKMS modules"

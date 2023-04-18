@@ -1,0 +1,3 @@
+#! /bin/sh
+rm -f /etc/modprobe.d/blacklist-rtl8xxxu.conf 
+

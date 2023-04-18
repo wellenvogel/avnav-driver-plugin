@@ -139,4 +139,20 @@ if [ "$1" = status ] ; then
     exit 0
 fi
 
+if [ "$1" = obsolete ] ; then
+    echo "removing obsolotes"
+    allModules "$pdir" | grep '^OLD=' | while read modstr
+    do
+        modPar "$modstr"
+        st="`getStatus $mod $ver`"
+        if [ "$st" = "" ] ; then
+            echo "nothing to do for $modstr"
+        else
+            echo "removing $modstr"
+            dkms remove -m $mod -v $ver 
+        fi
+    done
+    exit 0
+fi
+
 usage
