@@ -1,0 +1,2 @@
+#! /bin/bash
+/usr/lib/avnav/raspberry/driver/setup.sh remove all || echo "WARNING: could not remove DKMS modules"
