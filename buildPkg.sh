@@ -13,7 +13,7 @@ do
   mkdir -p "$pdir/$sub" || err "unable to create $pdir/$sub"
 done
 
-for dir in RTL8188EU
+for dir in RTL8188EU RTL8192EU
 do
   dn="$pdir/$dir"
   [ ! -f "$dn/module" ] && err "$dn/module missing"

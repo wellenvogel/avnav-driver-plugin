@@ -1,0 +1,28 @@
+--- Makefile	2023-04-18 18:55:45.792640135 +0200
++++ Makefile.mod	2023-04-18 19:04:11.127452684 +0200
+@@ -119,7 +119,7 @@
+ ###################### Platform Related #######################
+ CONFIG_PLATFORM_ARM_RPI = n
+ CONFIG_PLATFORM_ARM_AARCH64 = n
+-CONFIG_PLATFORM_I386_PC = y
++CONFIG_PLATFORM_I386_PC = n
+ CONFIG_PLATFORM_ANDROID_X86 = n
+ CONFIG_PLATFORM_ANDROID_INTEL_X86 = n
+ CONFIG_PLATFORM_JB_X86 = n
+@@ -181,6 +181,16 @@
+ CONFIG_PLATFORM_AML_S905 = n
+ CONFIG_PLATFORM_ZTE_ZX296716 = n
+ 
++########### PATCH for rpi ###########################
++# if KVER is set, check for v8 -> ARM_AARCH64, else ARM
++ifneq ($(KVER),)
++	v8=$shell( echo $(KVER) | grep v8)
++	ifeq ($(v8),)
++		CONFIG_PLATFORM_ARM_RPI = y
++	else
++		CONFIG_PLATFORM_ARM_AARCH64 = y
++	endif	
++endif
+ ########### CUSTOMER ################################
+ CONFIG_CUSTOMER_HUAWEI_GENERAL = n
+ 
