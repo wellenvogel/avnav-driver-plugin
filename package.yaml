@@ -29,6 +29,4 @@ contents:
   dst: /usr/lib/avnav/raspberry/driver/helper.sh
 scripts:
   preremove: preremove     
-deb:
-  fields:
 
