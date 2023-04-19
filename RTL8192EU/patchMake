@@ -9,19 +9,18 @@
  CONFIG_PLATFORM_ANDROID_X86 = n
  CONFIG_PLATFORM_ANDROID_INTEL_X86 = n
  CONFIG_PLATFORM_JB_X86 = n
-@@ -181,6 +181,17 @@
+@@ -181,6 +181,16 @@
  CONFIG_PLATFORM_AML_S905 = n
  CONFIG_PLATFORM_ZTE_ZX296716 = n
  
 +########### PATCH for rpi ###########################
-+# if KVER is set, check for v8 -> ARM_AARCH64, else ARM
-+ifneq ($(KVER),)
-+	v8=$(shell echo $(KVER) | grep v8)
-+   $(info v8=$(v8))
-+	ifeq ($(v8),)
-+		CONFIG_PLATFORM_ARM_RPI = y
-+	else
++# if PIARCH is set, check for aarch64 -> ARM_AARCH64, else ARM
++ifneq ($(PIARCH),)
++   $(info PIARCH=$(PIARCH))
++	ifeq ($(PIARCH),aarch64)
 +		CONFIG_PLATFORM_ARM_AARCH64 = y
++	else
++		CONFIG_PLATFORM_ARM_RPI = y
 +	endif	
 +endif
  ########### CUSTOMER ################################

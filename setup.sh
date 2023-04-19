@@ -1,4 +1,5 @@
 #! /bin/bash
+# set -x
 usage(){
     echo "usage: $0 initial|enable module|disable module|remove module(all)|list|status [module]"
     exit -1
@@ -39,6 +40,21 @@ isBuild(){
 
 if [ "$1" = "initial" ] ; then
     echo "preparing all modules"
+    kver=""
+    arch=""
+    if [ "$2" = "image" ] ; then
+      #get the kernelversion from the package insetad of using the current kernel
+      #to be able to pre-build during image creation
+      pattern=v8
+      arch="-a aarch64"
+      if [ "$(dpkg --print-architecture)" = "armhf" ] ; then
+        pattern=v7l
+        arch="-a armv7l"
+        kver="`dpkg -L raspberrypi-kernel-headers | grep "/lib/modules/.*v7l.*build$" | sed -e 's?/lib/modules/??' -e 's?/build$??'`"
+        kver=" -k $kver"
+        echo "using kernelversion $kver arch $arch"
+      fi
+    fi
     allModules "$pdir" ADD | while read modstr
     do
         echo "adding $modstr"
@@ -50,13 +66,13 @@ if [ "$1" = "initial" ] ; then
         setAutoInstall "$dkmscfg" NO
         st="`getStatus $mod $ver`" 
         if [ "$st" = "" ] ; then
-            dkms add -m $mod -v $ver || err "unable to add $par $mod $ver"
+            dkms add $kver $arch -m $mod -v $ver || err "unable to add $par $mod $ver"
         fi
         if isBuild "$st" ; then
             echo "$modstr already build"
         else
             echo "building $modstr"    
-            dkms build -m $mod -v $ver || err "unable to build $par $mod $ver"
+            dkms build $kver $arch -m $mod -v $ver || err "unable to build $par $mod $ver"
         fi    
     done
     echo "done..."
