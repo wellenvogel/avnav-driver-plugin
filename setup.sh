@@ -50,10 +50,10 @@ if [ "$1" = "initial" ] ; then
       if [ "$(dpkg --print-architecture)" = "armhf" ] ; then
         pattern=v7l
         arch="-a armv7l"
-        kver="`dpkg -L raspberrypi-kernel-headers | grep "/lib/modules/.*v7l.*build$" | sed -e 's?/lib/modules/??' -e 's?/build$??'`"
-        kver=" -k $kver"
-        echo "using kernelversion $kver arch $arch"
-      fi
+      fi  
+      kver="`dpkg -L raspberrypi-kernel-headers | grep "/lib/modules/.*${pattern}.*build$" | sed -e 's?/lib/modules/??' -e 's?/build$??'`"
+      kver=" -k $kver"
+      echo "using kernelversion $kver arch $arch"
     fi
     allModules "$pdir" ADD | while read modstr
     do
