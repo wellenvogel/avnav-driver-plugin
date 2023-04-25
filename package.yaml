@@ -2,7 +2,7 @@
 #
 # check https://nfpm.goreleaser.com/configuration for detailed usage
 #
-name: "avnav-driver-plugin"
+name: "avnav-raspi-driver"
 arch: "all"
 platform: "linux"
 version: "v1.0.0"
@@ -11,6 +11,7 @@ section: "default"
 priority: "extra"
 depends:
 - avnav-raspi
+- raspberrypi-kernel-headers
 - dkms
 maintainer: "Andreas Vogel <andreas@wellenvogel.de>"
 description: |
